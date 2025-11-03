@@ -33,11 +33,11 @@ views_fixed = {
 
 # Default view parameters
 defaults = {
-    "forward": {"enable": True, "fov_x": 82.0, "fov_y": 82.0, "width": 640, "height": 480, "quality": 100},
-    "rear": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 100},
-    "left": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 100},
-    "right": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 100},
-    "downward": {"enable": False, "fov_x": 120.0, "fov_y": 120.0, "width": 480, "height": 640, "quality": 100}
+    "forward": {"enable": True, "fov_x": 82.0, "fov_y": 82.0, "width": 640, "height": 480, "quality": 80},
+    "rear": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 80},
+    "left": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 80},
+    "right": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 80},
+    "downward": {"enable": False, "fov_x": 120.0, "fov_y": 120.0, "width": 480, "height": 640, "quality": 80}
 }
 
 # Publishers for each view
@@ -129,7 +129,7 @@ def record_handler(sample):
 sub_record = session.declare_subscriber("record_command", record_handler)
 
 # Camera setup
-cap = cv2.VideoCapture(0, cv2.CAP_V4L2)  # Use CAP_V4L2 for Jetson
+cap = cv2.VideoCapture(0)  # Adjust device ID if needed
 if not cap.isOpened():
     print("Error: Could not open Insta360 X5 camera.")
     exit()
@@ -247,7 +247,7 @@ last_check_time = time.time()
 try:
     while True:
         ret, frame = cap.read()
-        if not ret or frame is None or frame.size == 0:
+        if not ret or frame is None:
             print("Error: Can't receive frame. Retrying...")
             continue
 

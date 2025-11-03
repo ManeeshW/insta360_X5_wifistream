@@ -26,11 +26,11 @@ print(f"Node 2 Zenoh ID: {session.info.zid()}")  # For debugging
 
 # Default view parameters
 defaults = {
-    "forward": {"enable": True, "fov_x": 82.0, "fov_y": 82.0, "width": 640, "height": 480, "quality": 100},
-    "rear": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 100},
-    "left": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 100},
-    "right": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 100},
-    "downward": {"enable": False, "fov_x": 120.0, "fov_y": 120.0, "width": 480, "height": 640, "quality": 100}
+    "forward": {"enable": True, "fov_x": 82.0, "fov_y": 82.0, "width": 640, "height": 480, "quality": 80},
+    "rear": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 80},
+    "left": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 80},
+    "right": {"enable": False, "fov_x": 90.0, "fov_y": 90.0, "width": 640, "height": 480, "quality": 80},
+    "downward": {"enable": False, "fov_x": 120.0, "fov_y": 120.0, "width": 480, "height": 640, "quality": 80}
 }
 
 # View keys
