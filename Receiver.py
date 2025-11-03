@@ -48,6 +48,7 @@ class SharedParams:
         self.yaw = 0.0
         self.pitch = 0.0
         self.roll = 0.0
+        self.shift_degree = config.getfloat('global', 'shift_degree', fallback=0.0)
         self.views = {}
         for view in view_keys:
             sec = view
@@ -68,12 +69,14 @@ class SharedParams:
             "global_yaw": self.yaw,
             "global_pitch": self.pitch,
             "global_roll": self.roll,
+            "shift_degree": self.shift_degree,
             "views": {v: p.copy() for v, p in self.views.items()}
         }
         pub.put(json.dumps(data).encode(), encoding=zenoh.Encoding.APPLICATION_JSON)
 
     def save_config(self):
         config = configparser.ConfigParser()
+        config['global'] = {"shift_degree": str(self.shift_degree)}
         for view, params in self.views.items():
             config[view] = {
                 "enable": str(params["enable"]),
@@ -204,6 +207,12 @@ class ViewWindow(QMainWindow):
         quality_spin.setValue(self.shared_params.views[self.name]["quality"])
         layout.addRow("Image Quality %:", quality_spin)
 
+        if self.name == "forward":
+            shift_degree_spin = QDoubleSpinBox()
+            shift_degree_spin.setRange(-360.0, 360.0)
+            shift_degree_spin.setValue(self.shared_params.shift_degree)
+            layout.addRow("Shift Degree:", shift_degree_spin)
+
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
@@ -217,6 +226,8 @@ class ViewWindow(QMainWindow):
             self.shared_params.views[self.name]["width"] = width_spin.value()
             self.shared_params.views[self.name]["height"] = height_spin.value()
             self.shared_params.views[self.name]["quality"] = quality_spin.value()
+            if self.name == "forward":
+                self.shared_params.shift_degree = shift_degree_spin.value()
             self.shared_params.send(pub_params)
             self.shared_params.save_config()
 

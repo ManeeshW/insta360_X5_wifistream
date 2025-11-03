@@ -5,6 +5,7 @@ import json
 import threading
 import time
 import h5py
+import os
 
 # Zenoh configuration for UDP multicast scouting (no specific IPs needed)
 # Using a custom port (7450) to avoid potential conflicts with default
@@ -75,9 +76,10 @@ def start_recording():
     with recording_lock:
         if recording:
             return  # Already recording
+        os.makedirs('data', exist_ok=True)
         time_str = time.strftime("%Y%m%d_%H%M%S")
-        h5_path = f'recording_{time_str}.h5'
-        mp4_path = f'recording_{time_str}.mp4'
+        h5_path = f'data/recording_{time_str}.h5'
+        mp4_path = f'data/recording_{time_str}.mp4'
         recording = True
         frame_count = 0
         h5_file = h5py.File(h5_path, 'w')
@@ -127,7 +129,7 @@ def record_handler(sample):
 sub_record = session.declare_subscriber("record_command", record_handler)
 
 # Camera setup
-cap = cv2.VideoCapture(0)  # Adjust device ID if needed
+cap = cv2.VideoCapture(0, cv2.CAP_V4L2)  # Use CAP_V4L2 for Jetson
 if not cap.isOpened():
     print("Error: Could not open Insta360 X5 camera.")
     exit()
@@ -245,7 +247,7 @@ last_check_time = time.time()
 try:
     while True:
         ret, frame = cap.read()
-        if not ret or frame is None:
+        if not ret or frame is None or frame.size == 0:
             print("Error: Can't receive frame. Retrying...")
             continue
 
@@ -261,7 +263,12 @@ try:
             global_yaw = current_params.get("global_yaw", 0.0)
             global_pitch = current_params.get("global_pitch", 0.0)
             global_roll = current_params.get("global_roll", 0.0)
+            global_shift_degree = current_params.get("shift_degree", 0.0)
             views_params = current_params.get("views", {})
+
+        if global_shift_degree != 0:
+            shift = int((global_shift_degree / 360.0) * equi_width)
+            frame = np.concatenate((frame[:, shift:], frame[:, :shift]), axis=1)
 
         for view_name, fixed in views_fixed.items():
             vparam = views_params.get(view_name, defaults[view_name])
